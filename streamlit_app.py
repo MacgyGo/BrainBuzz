@@ -41,7 +41,7 @@ def main():
         choose_question_count()
     elif st.session_state.quiz is None:
         initialize_quiz()
-    elif st.session_state.quiz.has_questions():
+    elif st.session_state.quiz and st.session_state.quiz.has_questions():  # Added check for quiz initialization
         display_question()
     else:
         display_results()
@@ -62,9 +62,7 @@ def choose_question_count():
     if st.button("Start Quiz"):
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
-
-        # Handle reruns for both newer and older Streamlit versions
-        
+        # No need to call rerun, Streamlit will automatically re-render
 
 def display_question():
     set_background_color(st.session_state.background_color)
@@ -110,7 +108,7 @@ def next_question():
         st.session_state.quiz_completed = True
 
 def display_results():
-    set_background_color("#FFFFFF")  # Reset to white background for results page
+    set_background_color("#FFFFFF")    # Reset to white background for results page
     st.write("You've completed the quiz!")
     st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.quiz.question_number}") 
     if st.button("Restart Quiz"):
