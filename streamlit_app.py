@@ -22,13 +22,14 @@ def initialize_quiz():
   st.session_state.time_left = 30
   st.session_state.answered = False
   st.session_state.background_color = get_random_light_color()
+  st.session_state.current_index = 0  # Track the current question index
 
 def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
     # Initialize session state variables if not already set
-    for key in ['quiz_started', 'question_count', 'quiz_data']:
+    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index']:
         if key not in st.session_state:
             st.session_state[key] = None if key == 'quiz_data' else False
 
@@ -57,6 +58,7 @@ def choose_question_count():
     if st.button("Start Quiz"):
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
+        st.session_state.current_index = 0  # Reset current index
 
         # Handle reruns for both newer and older Streamlit versions
         if hasattr(st, 'experimental_rerun'):
@@ -68,7 +70,8 @@ def display_question():
     set_background_color(st.session_state.background_color)
 
     if st.session_state.time_left > 0 and not st.session_state.answered:
-        st.write(f"Question {st.session_state.quiz.question_number}/{st.session_state.quiz.total_questions}")
+        st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}") 
+        st.progress((st.session_state.current_index + 1) / st.session_state.question_count) 
         st.write(st.session_state.current_question.text)
 
         for i, choice in enumerate(st.session_state.current_question.choices):
@@ -104,13 +107,14 @@ def next_question():
         st.session_state.time_left = 30
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
+        st.session_state.current_index += 1  # Increment current index
     else:
         st.session_state.quiz_completed = True
 
 def display_results():
     set_background_color("#FFFFFF")  # Reset to white background for results page
     st.write("You've completed the quiz!")
-    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.quiz.question_number}") 
+    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.question_count}") 
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
