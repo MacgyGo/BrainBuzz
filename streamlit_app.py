@@ -64,7 +64,11 @@ def choose_question_count():
     if st.button("Start Quiz"):
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
-        st.experimental_rerun()  # Use experimental_rerun() for proper reruns
+        st.experimental_rerun()  # Use experimental_rerun() if available
+
+        # Fallback for older Streamlit versions:
+        if not hasattr(st, 'experimental_rerun'): 
+            st.session_state.write('')  # Trigger a re-render
 
 def display_question():
     set_background_color(st.session_state.background_color)
@@ -116,7 +120,11 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        st.experimental_rerun()
+        st.experimental_rerun()  # Use experimental_rerun() if available
+
+        # Fallback for older Streamlit versions:
+        if not hasattr(st, 'experimental_rerun'): 
+            st.session_state.write('')  # Trigger a re-render
 
 def set_background_color(color):
     st.markdown(
