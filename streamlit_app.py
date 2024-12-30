@@ -26,18 +26,10 @@ def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
-    if 'quiz_started' not in st.session_state:
-        st.session_state.quiz_started = False
-    if 'quiz' not in st.session_state:
-        st.session_state.quiz = None
-    if 'current_question' not in st.session_state:
-        st.session_state.current_question = None
-    if 'time_left' not in st.session_state:
-        st.session_state.time_left = 30
-    if 'answered' not in st.session_state:
-        st.session_state.answered = False
-    if 'background_color' not in st.session_state:
-        st.session_state.background_color = "white"
+    # Initialize session state variables if not already set
+    for key in ['quiz_started', 'quiz', 'current_question', 'time_left', 'answered', 'background_color']:
+        if key not in st.session_state:
+            st.session_state[key] = None if key in ['quiz', 'current_question'] else (False if key == 'answered' else 30)
 
     if not st.session_state.quiz_started:
         choose_question_count()
@@ -69,7 +61,8 @@ def choose_question_count():
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
         else:
-            st.session_state.write('')  # Trigger a re-render for older versions
+            # For older versions without experimental_rerun, use a different approach
+            st.experimental_singletons.rerun()  # Use st.experimental_singletons.rerun() for older versions
 
 def display_question():
     set_background_color(st.session_state.background_color)
