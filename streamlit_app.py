@@ -13,7 +13,7 @@ def main():
         select_num_questions()
 
     # Display the current question or show the results if the quiz is over
-    if st.session_state.quiz.has_questions():
+    if hasattr(st.session_state, 'quiz') and st.session_state.quiz.has_questions():
         display_question()
     else:
         display_results()
@@ -46,7 +46,13 @@ def display_question():
     set_background_color(st.session_state.background_color)
 
     # Display the progress (questions completed / total questions)
-    st.write(f"Question {st.session_state.questions_completed + 1}/{st.session_state.quiz.total_questions}")
+    if hasattr(st.session_state.quiz, 'total_questions'):
+        total_questions = st.session_state.quiz.total_questions
+    else:
+        total_questions = 0
+
+    # Avoid errors if total_questions is not set yet
+    st.write(f"Question {st.session_state.questions_completed + 1}/{total_questions}")
     
     if st.session_state.time_left > 0 and not st.session_state.answered:
         st.write(st.session_state.current_question.text)
