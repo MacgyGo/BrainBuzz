@@ -4,6 +4,13 @@ from quiz_data import get_questions
 from question_model import Question
 from quiz_brain import QuizBrain
 
+def get_random_light_color():
+  """Generates a random light color in RGB format"""
+  r = random.randint(200, 255)
+  g = random.randint(200, 255)
+  b = random.randint(200, 255)
+  return f"rgb({r},{g},{b})"
+
 def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
