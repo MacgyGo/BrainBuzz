@@ -9,18 +9,26 @@ def main():
     st.title("Brain Buzz")
 
     if 'quiz' not in st.session_state:
-        initialize_quiz()
+        select_num_questions()
 
     if st.session_state.quiz.has_questions():
         display_question()
     else:
         display_results()
 
-def initialize_quiz():
-    question_data = get_questions()
+def select_num_questions():
+    # Add a selector for the number of questions
+    num_questions = st.selectbox(
+        "Select number of questions:",
+        [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+        index=0  # Default to 10 questions
+    )
+    
+    # Initialize quiz based on the number of questions selected
+    question_data = get_questions(num_questions)  # Assume `get_questions()` can accept a number argument
     question_bank = [Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer']) for q in question_data]
     st.session_state.quiz = QuizBrain(question_bank)
-    st.session_state.quiz.set_question_number(10)  # Default to 10 questions, you can make this configurable
+    st.session_state.quiz.set_question_number(num_questions)  # Set the number of questions based on user choice
     st.session_state.current_question = st.session_state.quiz.next_question()
     st.session_state.time_left = 30
     st.session_state.answered = False
