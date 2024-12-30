@@ -10,10 +10,20 @@ def main():
 
     if 'quiz_started' not in st.session_state:
         st.session_state.quiz_started = False
+    if 'quiz' not in st.session_state:
+        st.session_state.quiz = None
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = None
+    if 'time_left' not in st.session_state:
+        st.session_state.time_left = 30
+    if 'answered' not in st.session_state:
+        st.session_state.answered = False
+    if 'background_color' not in st.session_state:
+        st.session_state.background_color = get_random_light_color()
 
     if not st.session_state.quiz_started:
         choose_question_count()
-    elif 'quiz' not in st.session_state:
+    elif st.session_state.quiz is None:
         initialize_quiz()
     elif st.session_state.quiz.has_questions():
         display_question()
@@ -32,7 +42,7 @@ def choose_question_count():
     if st.button("Start Quiz"):
         st.session_state.question_count = min(question_count, max_questions)
         st.session_state.quiz_started = True
-        st.rerun()
+        st.experimental_rerun()
 
 def initialize_quiz():
     question_data = get_questions()
@@ -44,7 +54,75 @@ def initialize_quiz():
     st.session_state.answered = False
     st.session_state.background_color = get_random_light_color()
 
-# ... (rest of the functions remain the same)
+def display_question():
+    set_background_color(st.session_state.background_color)
+
+    if st.session_state.time_left > 0 and not st.session_state.answered:
+        st.write(f"Question {st.session_state.quiz.question_number}/{st.session_state.quiz.total_questions}")
+        st.write(st.session_state.current_question.text)
+
+        for i, choice in enumerate(st.session_state.current_question.choices):
+            if st.button(choice, key=f"choice_{i}"):
+                check_answer(choice)
+
+        st.write(f"Time left: {st.session_state.time_left} seconds")
+        st.session_state.time_left -= 1
+    elif not st.session_state.answered:
+        st.write("Time's up!")
+        check_answer(None)
+
+    if st.session_state.answered:
+        if st.button("Next Question"):
+            next_question()
+
+def check_answer(user_answer):
+    st.session_state.answered = True
+    if user_answer:
+        is_correct = st.session_state.quiz.check_answer(user_answer)
+        if is_correct:
+            st.success("Correct!")
+        else:
+            st.error("Wrong!")
+            st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
+    else:
+        st.error("Time's up!")
+        st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
+
+def next_question():
+    if st.session_state.quiz.has_questions():
+        st.session_state.current_question = st.session_state.quiz.next_question()
+        st.session_state.time_left = 30
+        st.session_state.answered = False
+        st.session_state.background_color = get_random_light_color()
+    else:
+        st.session_state.quiz_completed = True
+
+def display_results():
+    set_background_color("#FFFFFF")  # Reset to white background for results page
+    st.write("You've completed the quiz!")
+    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.quiz.question_number}")
+    if st.button("Restart Quiz"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.experimental_rerun()
+
+def get_random_light_color():
+    r = random.randint(200, 255)
+    g = random.randint(200, 255)
+    b = random.randint(200, 255)
+    return f"rgb({r},{g},{b})"
+
+def set_background_color(color):
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-color: {color};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 if __name__ == "__main__":
     main()
