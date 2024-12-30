@@ -28,7 +28,7 @@ def main():
     st.title("Brain Buzz")
 
     # Initialize session state variables if not already set
-    for key in ['quiz_started', 'question_count', 'quiz_data']:  # Include quiz_data
+    for key in ['quiz_started', 'question_count', 'quiz_data']:
         if key not in st.session_state:
             st.session_state[key] = None if key == 'quiz_data' else False
 
@@ -62,7 +62,7 @@ def choose_question_count():
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
         else:
-            st.experimental_singletons.rerun()  # Use st.experimental_singletons.rerun() for older versions
+            st.session_state.write('')  # Trigger a re-render for older versions
 
 def display_question():
     set_background_color(st.session_state.background_color)
@@ -80,6 +80,7 @@ def display_question():
     elif not st.session_state.answered:
         st.write("Time's up!")
         check_answer(None)
+
 
     if st.session_state.answered:
         if st.button("Next Question"):
