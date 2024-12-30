@@ -120,6 +120,5 @@ def set_background_color(color):
         unsafe_allow_html=True
     )
 
-# Ensure proper indentation here
 if __name__ == "__main__":
     main()
