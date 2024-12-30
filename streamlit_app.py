@@ -41,17 +41,15 @@ def select_num_questions():
     st.session_state.answered = False
     st.session_state.background_color = get_random_light_color()
     st.session_state.questions_completed = 0  # Initialize the number of completed questions
+    st.session_state.total_questions = num_questions  # Save the total number of questions for progress display
 
 def display_question():
     set_background_color(st.session_state.background_color)
 
-    # Display the progress (questions completed / total questions)
-    if hasattr(st.session_state.quiz, 'total_questions'):
-        total_questions = st.session_state.quiz.total_questions
-    else:
-        total_questions = 0
+    # Get total questions from session state
+    total_questions = st.session_state.total_questions
 
-    # Avoid errors if total_questions is not set yet
+    # Display the progress (questions completed / total questions)
     st.write(f"Question {st.session_state.questions_completed + 1}/{total_questions}")
     
     if st.session_state.time_left > 0 and not st.session_state.answered:
