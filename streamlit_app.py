@@ -6,8 +6,21 @@ from quiz_brain import QuizBrain
 
 def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
-    st.title("Neuroscience Quiz")
+    st.title("Brain Buzz")
+    st.markdown(
+        """
+        <style>
+        body {
+            background-color: #ffcccc;  /*  red background */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
+    # Example Streamlit content
+    st.title("Streamlit Background Color Example")
+    st.write("This is a Streamlit app with a custom background color!")
     if 'quiz' not in st.session_state:
         initialize_quiz()
 
@@ -29,17 +42,17 @@ def display_question():
     if st.session_state.time_left > 0 and not st.session_state.answered:
         st.write(f"Question {st.session_state.quiz.question_number}/{st.session_state.quiz.total_questions}")
         st.write(st.session_state.current_question.text)
-        
+
         for i, choice in enumerate(st.session_state.current_question.choices):
             if st.button(choice, key=f"choice_{i}"):
                 check_answer(choice)
-        
+
         st.write(f"Time left: {st.session_state.time_left} seconds")
         st.session_state.time_left -= 1
     elif not st.session_state.answered:
         st.write("Time's up!")
         check_answer(None)
-    
+
     if st.session_state.answered:
         if st.button("Next Question"):
             next_question()
