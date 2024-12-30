@@ -40,14 +40,18 @@ def select_num_questions():
     st.session_state.time_left = 30
     st.session_state.answered = False
     st.session_state.background_color = get_random_light_color()
+    st.session_state.questions_completed = 0  # Initialize the number of completed questions
 
 def display_question():
     set_background_color(st.session_state.background_color)
 
+    # Display the progress (questions completed / total questions)
+    st.write(f"Question {st.session_state.questions_completed + 1}/{st.session_state.quiz.total_questions}")
+    
     if st.session_state.time_left > 0 and not st.session_state.answered:
-        st.write(f"Question {st.session_state.quiz.question_number}/{st.session_state.quiz.total_questions}")
         st.write(st.session_state.current_question.text)
 
+        # Display choices as buttons
         for i, choice in enumerate(st.session_state.current_question.choices):
             if st.button(choice, key=f"choice_{i}"):
                 check_answer(choice)
@@ -81,13 +85,14 @@ def next_question():
         st.session_state.time_left = 30
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
+        st.session_state.questions_completed += 1  # Increment the number of questions completed
     else:
         st.session_state.quiz_completed = True
 
 def display_results():
     set_background_color("#FFFFFF")  # Reset to white background for results page
     st.write("You've completed the quiz!")
-    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.quiz.question_number}")
+    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.quiz.total_questions}")
     if st.button("Restart Quiz"):
         st.session_state.clear()
         st.experimental_rerun()
