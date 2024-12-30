@@ -117,7 +117,7 @@ def display_results():
     st.write("You've completed the quiz!")
     st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.quiz.question_number}") 
     if st.button("Restart Quiz"):
-        for key in list(st.session_state.keys
+        for key in list(st.session_state.keys):
             del st.session_state[key]
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
