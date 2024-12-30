@@ -8,9 +8,12 @@ def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
-    if 'quiz' not in st.session_state:
+    if 'quiz_started' not in st.session_state:
+        st.session_state.quiz_started = False
+
+    if not st.session_state.quiz_started:
         choose_question_count()
-    elif not st.session_state.quiz_started:
+    elif 'quiz' not in st.session_state:
         initialize_quiz()
     elif st.session_state.quiz.has_questions():
         display_question()
@@ -18,7 +21,6 @@ def main():
         display_results()
 
 def choose_question_count():
-    st.session_state.quiz_started = False
     question_data = get_questions()
     max_questions = len(question_data)
     st.write(f"Total available questions: {max_questions}")
@@ -28,6 +30,7 @@ def choose_question_count():
     if st.button("Start Quiz"):
         st.session_state.question_count = min(question_count, max_questions)
         st.session_state.quiz_started = True
+        st.experimental_rerun()
 
        
 
