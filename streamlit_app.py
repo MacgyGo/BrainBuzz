@@ -5,7 +5,7 @@ from question_model import Question
 from quiz_brain import QuizBrain
 
 def main():
-    st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
+    st.set_page_config(page_title="Brain Buzz Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
     st.markdown(
         """
