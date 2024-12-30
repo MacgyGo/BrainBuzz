@@ -8,9 +8,11 @@ def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
+    # Initialize the quiz only after the user selects the number of questions
     if 'quiz' not in st.session_state:
         select_num_questions()
 
+    # Display the current question or show the results if the quiz is over
     if st.session_state.quiz.has_questions():
         display_question()
     else:
@@ -24,11 +26,16 @@ def select_num_questions():
         index=0  # Default to 10 questions
     )
     
-    # Initialize quiz based on the number of questions selected
-    question_data = get_questions(num_questions)  # Assume `get_questions()` can accept a number argument
-    question_bank = [Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer']) for q in question_data]
+    # Fetch questions based on the user's selection
+    question_data = get_questions()  # Assume this returns all questions
+    # Randomly shuffle and select a subset of questions based on the user's choice
+    random.shuffle(question_data)
+    selected_questions = question_data[:num_questions]
+
+    # Initialize quiz with selected questions
+    question_bank = [Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer']) for q in selected_questions]
     st.session_state.quiz = QuizBrain(question_bank)
-    st.session_state.quiz.set_question_number(num_questions)  # Set the number of questions based on user choice
+    st.session_state.quiz.set_question_number(num_questions)  # Set the number of questions
     st.session_state.current_question = st.session_state.quiz.next_question()
     st.session_state.time_left = 30
     st.session_state.answered = False
