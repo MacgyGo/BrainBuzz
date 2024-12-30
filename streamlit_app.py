@@ -18,9 +18,6 @@ def main():
         unsafe_allow_html=True
     )
 
-    # Example Streamlit content
-    st.title("Streamlit Background Color Example")
-    st.write("This is a Streamlit app with a custom background color!")
     if 'quiz' not in st.session_state:
         initialize_quiz()
 
