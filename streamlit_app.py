@@ -64,10 +64,7 @@ def choose_question_count():
         st.session_state.quiz_started = True
 
         # Handle reruns for both newer and older Streamlit versions
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.experimental_rerun()  # Corrected to rerun the app
+        
 
 def display_question():
     set_background_color(st.session_state.background_color)
