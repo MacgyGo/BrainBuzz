@@ -42,7 +42,7 @@ def choose_question_count():
     if st.button("Start Quiz"):
         st.session_state.question_count = min(question_count, max_questions)
         st.session_state.quiz_started = True
-        st.run()
+        st.rerun()
 
 def initialize_quiz():
     question_data = get_questions()
