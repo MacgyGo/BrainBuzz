@@ -5,18 +5,8 @@ from question_model import Question
 from quiz_brain import QuizBrain
 
 def main():
-    st.set_page_config(page_title="Brain Buzz Neuroscience Quiz", page_icon="🧠")
+    st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
-    st.markdown(
-        """
-        <style>
-        body {
-            background-color: #ffcccc;  /*  red background */
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
 
     if 'quiz' not in st.session_state:
         initialize_quiz()
@@ -34,8 +24,11 @@ def initialize_quiz():
     st.session_state.current_question = st.session_state.quiz.next_question()
     st.session_state.time_left = 30
     st.session_state.answered = False
+    st.session_state.background_color = get_random_light_color()
 
 def display_question():
+    set_background_color(st.session_state.background_color)
+
     if st.session_state.time_left > 0 and not st.session_state.answered:
         st.write(f"Question {st.session_state.quiz.question_number}/{st.session_state.quiz.total_questions}")
         st.write(st.session_state.current_question.text)
@@ -72,15 +65,36 @@ def next_question():
         st.session_state.current_question = st.session_state.quiz.next_question()
         st.session_state.time_left = 30
         st.session_state.answered = False
+        st.session_state.background_color = get_random_light_color()
     else:
         st.session_state.quiz_completed = True
 
 def display_results():
+    set_background_color("#FFFFFF")  # Reset to white background for results page
     st.write("You've completed the quiz!")
     st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.quiz.question_number}")
     if st.button("Restart Quiz"):
         st.session_state.clear()
         st.experimental_rerun()
+
+def get_random_light_color():
+    # Generate a random light color
+    r = random.randint(200, 255)
+    g = random.randint(200, 255)
+    b = random.randint(200, 255)
+    return f"rgb({r},{g},{b})"
+
+def set_background_color(color):
+    st.markdown(
+        f"""
+        <style>
+        .stApp {{
+            background-color: {color};
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
 if __name__ == "__main__":
     main()
