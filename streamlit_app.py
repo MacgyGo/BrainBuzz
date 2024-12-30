@@ -64,7 +64,7 @@ def choose_question_count():
     if st.button("Start Quiz"):
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
-        st.rerun()
+        st.experimental_rerun()  # Use experimental_rerun() for proper reruns
 
 def display_question():
     set_background_color(st.session_state.background_color)
