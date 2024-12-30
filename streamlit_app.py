@@ -37,7 +37,7 @@ def main():
     if 'answered' not in st.session_state:
         st.session_state.answered = False
     if 'background_color' not in st.session_state:
-        st.session_state.background_color = "white" 
+        st.session_state.background_color = "white"
 
     if not st.session_state.quiz_started:
         choose_question_count()
@@ -64,11 +64,12 @@ def choose_question_count():
     if st.button("Start Quiz"):
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
-        st.experimental_rerun()  # Use experimental_rerun() if available
 
-        # Fallback for older Streamlit versions:
-        if not hasattr(st, 'experimental_rerun'): 
-            st.session_state.write('')  # Trigger a re-render
+        # Handle reruns for both newer and older Streamlit versions
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.session_state.write('')  # Trigger a re-render for older versions
 
 def display_question():
     set_background_color(st.session_state.background_color)
@@ -120,11 +121,10 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        st.experimental_rerun()  # Use experimental_rerun() if available
-
-        # Fallback for older Streamlit versions:
-        if not hasattr(st, 'experimental_rerun'): 
-            st.session_state.write('')  # Trigger a re-render
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.session_state.write('')  # Trigger a re-render for older versions
 
 def set_background_color(color):
     st.markdown(
