@@ -62,7 +62,7 @@ def choose_question_count():
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
         else:
-            st.session_state.write('')  # Trigger a re-render for older versions
+            st.empty()  # Trigger a re-render for older versions
 
 def display_question():
     set_background_color(st.session_state.background_color)
@@ -117,7 +117,7 @@ def display_results():
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
         else:
-            st.session_state.write('')  # Trigger a re-render for older versions
+            st.empty()  # Trigger a re-render for older versions
 
 def set_background_color(color):
     st.markdown(
