@@ -13,9 +13,10 @@ def get_random_light_color():
 
 def initialize_quiz():
   """Initializes the quiz with questions and sets state variables"""
-  question_data = get_questions()
-  question_bank = [Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer']) for q in question_data]
-  st.session_state.quiz = QuizBrain(question_bank)
+  if 'quiz_data' not in st.session_state:  # Check if quiz data is already loaded
+      st.session_state.quiz_data = get_questions()
+  question_bank = [Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer']) for q in st.session_state.quiz_data]
+  st.session_state.quiz = QuizBrain(question_bank)  # Initialize quiz object here
   st.session_state.quiz.set_question_number(st.session_state.question_count)
   st.session_state.current_question = st.session_state.quiz.next_question()
   st.session_state.time_left = 30
@@ -27,9 +28,9 @@ def main():
     st.title("Brain Buzz")
 
     # Initialize session state variables if not already set
-    for key in ['quiz_started', 'quiz', 'current_question', 'time_left', 'answered', 'background_color']:
+    for key in ['quiz_started', 'question_count', 'quiz_data']:  # Include quiz_data
         if key not in st.session_state:
-            st.session_state[key] = None if key in ['quiz', 'current_question'] else (False if key == 'answered' else 30)
+            st.session_state[key] = None if key == 'quiz_data' else False
 
     if not st.session_state.quiz_started:
         choose_question_count()
@@ -46,10 +47,10 @@ def choose_question_count():
     st.write(f"Total available questions: {max_questions}")
 
     question_count = st.slider(
-        "Choose the number of questions:", 
-        min_value=1, 
-        max_value=min(max_questions, 100), 
-        step=1, 
+        "Choose the number of questions:",
+        min_value=1,
+        max_value=min(max_questions, 100),
+        step=1,
         value=10
     )
 
@@ -61,7 +62,6 @@ def choose_question_count():
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
         else:
-            # For older versions without experimental_rerun, use a different approach
             st.experimental_singletons.rerun()  # Use st.experimental_singletons.rerun() for older versions
 
 def display_question():
