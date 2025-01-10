@@ -17,8 +17,8 @@ def initialize_quiz():
     # Load questions into session state if not already loaded
     if 'quiz_data' not in st.session_state:
         st.session_state.quiz_data = get_questions()
-
-    # Validate that quiz_data is not empty or None
+    
+    # Ensure that the questions are successfully loaded
     if not st.session_state.quiz_data:
         st.error("No questions available. Please check the data source.")
         return  # Exit function if no quiz data is available
@@ -65,7 +65,13 @@ def main():
 
 def choose_question_count():
     """Displays a slider for the user to choose the number of quiz questions"""
+    # Check if questions are available
     question_data = get_questions()
+    
+    if not question_data:
+        st.error("No questions available. Please check the data source.")
+        return
+    
     max_questions = len(question_data)
     st.write(f"Total available questions: {max_questions}")
 
