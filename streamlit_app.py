@@ -80,18 +80,16 @@ def display_question():
     """Displays the current question and its answer choices"""
     set_background_color(st.session_state.background_color)  # Set dynamic background color
 
-    # Show question and track time if unanswered
-    if not st.session_state.answered:
-        st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
-        st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
-        st.write(st.session_state.current_question.text)  # Display question text
+    st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
+    st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
+    st.write(st.session_state.current_question.text)  # Display question text
 
+    if not st.session_state.answered:
         # Display answer choices as buttons
-        choice_buttons = []
         for i, choice in enumerate(st.session_state.current_question.choices):
             if st.button(choice, key=f"choice_{i}"):
                 check_answer(choice)
-                return  # Exit the function after answering
+                st.experimental_rerun()  # Rerun to update the UI
 
         # Create a placeholder for the timer
         timer_placeholder = st.empty()
@@ -106,11 +104,21 @@ def display_question():
         if not st.session_state.answered:
             st.write("Time's up!")
             check_answer(None)  # Handle unanswered case
+            st.experimental_rerun()  # Rerun to update the UI
 
-    # Provide option to proceed to the next question
-    if st.session_state.answered:
+    else:
+        # Display feedback
+        if st.session_state.last_answer_correct:
+            st.success("Correct!")
+        else:
+            st.error("Wrong!")
+            st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
+
+        # Provide option to proceed to the next question
         if st.button("Next Question"):
             next_question()
+            st.experimental_rerun()  # Rerun to update the UI
+
 
 
 def check_answer(user_answer):
