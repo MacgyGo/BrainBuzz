@@ -42,10 +42,9 @@ async def display_question():
     st.write(st.session_state.current_question.text)
 
     timer_placeholder = st.empty()
-
     choice_buttons = []
     for i, choice in enumerate(st.session_state.current_question.choices):
-        choice_buttons.append(st.button(choice, key=f"choice_{i}"))
+        choice_buttons.append(st.button(choice, key=f"choice_{i}_{st.session_state.current_index}"))
 
     start_time = time.time()
     while time.time() - start_time < 30 and not st.session_state.answered:
@@ -65,8 +64,9 @@ async def display_question():
         check_answer(None)
 
     if st.session_state.answered:
-        if st.button("Next Question"):
+        if st.button("Next Question", key=f"next_{st.session_state.current_index}"):
             next_question()
+            st.experimental_rerun()
 
 def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
@@ -105,11 +105,7 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
-
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()
+        st.experimental_rerun()
 
 def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
@@ -144,10 +140,7 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()
+        st.experimental_rerun()
 
 def set_background_color(color):
     """Sets the background color of the app dynamically"""
