@@ -1,6 +1,5 @@
 import streamlit as st
 import random
-import time
 from quiz_data import get_questions
 from question_model import Question
 from quiz_brain import QuizBrain
@@ -13,12 +12,12 @@ def get_random_light_color():
     return f"rgb({r},{g},{b})"
 
 def initialize_quiz():
-    """Initializes the quiz with questions and sets session variables"""
+    """Initializes the quiz with questions and sets state variables"""
     # Load questions into session state if not already loaded
-    if 'quiz_data' not in st.session_state:
-        st.session_state.quiz_data = get_questions()
-    
-    # Ensure that the questions are successfully loaded
+    #if 'quiz_data' not in st.session_state:
+    st.session_state.quiz_data = get_questions()
+
+    # Validate that quiz_data is not empty or None
     if not st.session_state.quiz_data:
         st.error("No questions available. Please check the data source.")
         return  # Exit function if no quiz data is available
@@ -37,7 +36,6 @@ def initialize_quiz():
     st.session_state.answered = False  # Indicates whether the current question is answered
     st.session_state.background_color = get_random_light_color()  # Randomize background color
     st.session_state.current_index = 0  # Track the index of the current question
-    st.session_state.quiz_started = True
 
 def main():
     # Configure the Streamlit app
@@ -45,7 +43,7 @@ def main():
     st.title("Brain Buzz")
 
     # Initialize session state variables if they are not already set
-    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz', 'time_left']:
+    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz']:
         if key not in st.session_state:
             st.session_state[key] = None if key in ['quiz_data', 'quiz'] else False
 
@@ -65,13 +63,7 @@ def main():
 
 def choose_question_count():
     """Displays a slider for the user to choose the number of quiz questions"""
-    # Check if questions are available
     question_data = get_questions()
-    
-    if not question_data:
-        st.error("No questions available. Please check the data source.")
-        return
-    
     max_questions = len(question_data)
     st.write(f"Total available questions: {max_questions}")
 
@@ -89,14 +81,18 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0  # Reset the current index
-        initialize_quiz()  # Initialize the quiz with data
-        st.experimental_rerun()  # Rerun the app to move to the quiz state
+
+        # Handle reruns for both newer and older Streamlit versions
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.empty()  # Trigger a re-render for older versions
 
 def display_question():
     """Displays the current question and its answer choices"""
     set_background_color(st.session_state.background_color)  # Set dynamic background color
 
-    # Display the question
+    # Show question and track time if unanswered
     if st.session_state.time_left > 0 and not st.session_state.answered:
         st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
         st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
@@ -107,12 +103,8 @@ def display_question():
             if st.button(choice, key=f"choice_{i}"):
                 check_answer(choice)  # Handle answer selection
 
-        # Display countdown timer
         st.write(f"Time left: {st.session_state.time_left} seconds")
         st.session_state.time_left -= 1  # Decrement time
-        time.sleep(1)  # Wait for 1 second before updating again
-        st.experimental_rerun()  # Force a rerun to update the timer and content
-
     elif not st.session_state.answered:
         st.write("Time's up!")
         check_answer(None)  # Handle unanswered case
@@ -157,7 +149,10 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]  # Clear session state
-        st.experimental_rerun()  # Trigger a re-render to start fresh
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.empty()  # Trigger a re-render for older versions
 
 def set_background_color(color):
     """Sets the background color of the app dynamically"""
