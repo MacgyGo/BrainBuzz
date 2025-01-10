@@ -89,17 +89,19 @@ def display_question():
         # Display answer choices as buttons
         choice_buttons = []
         for i, choice in enumerate(st.session_state.current_question.choices):
-            choice_buttons.append(st.button(choice, key=f"choice_{i}"))
+            if st.button(choice, key=f"choice_{i}"):
+                check_answer(choice)
+                return  # Exit the function after answering
 
         # Create a placeholder for the timer
         timer_placeholder = st.empty()
 
         # Start the 30-second timer
         for remaining in range(30, 0, -1):
+            if st.session_state.answered:
+                break
             timer_placeholder.write(f"Time left: {remaining} seconds")
             time.sleep(1)
-            if any(choice_buttons) or st.session_state.answered:
-                break
 
         if not st.session_state.answered:
             st.write("Time's up!")
@@ -109,6 +111,7 @@ def display_question():
     if st.session_state.answered:
         if st.button("Next Question"):
             next_question()
+
 
 def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
