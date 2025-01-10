@@ -1,5 +1,6 @@
 import streamlit as st
 import random
+import time
 from quiz_data import get_questions
 from question_model import Question
 from quiz_brain import QuizBrain
@@ -14,8 +15,8 @@ def get_random_light_color():
 def initialize_quiz():
     """Initializes the quiz with questions and sets state variables"""
     # Load questions into session state if not already loaded
-    #if 'quiz_data' not in st.session_state:
-    st.session_state.quiz_data = get_questions()
+    if 'quiz_data' not in st.session_state:
+        st.session_state.quiz_data = get_questions()
 
     # Validate that quiz_data is not empty or None
     if not st.session_state.quiz_data:
@@ -81,12 +82,8 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0  # Reset the current index
-
-        # Handle reruns for both newer and older Streamlit versions
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()  # Trigger a re-render for older versions
+        initialize_quiz()  # Initialize the quiz with data
+        st.experimental_rerun()  # Rerun the app to move to the quiz state
 
 def display_question():
     """Displays the current question and its answer choices"""
@@ -103,8 +100,12 @@ def display_question():
             if st.button(choice, key=f"choice_{i}"):
                 check_answer(choice)  # Handle answer selection
 
+        # Display countdown timer
         st.write(f"Time left: {st.session_state.time_left} seconds")
         st.session_state.time_left -= 1  # Decrement time
+        time.sleep(1)  # Wait for 1 second before updating again
+        st.experimental_rerun()  # Force a rerun to update the timer and content
+
     elif not st.session_state.answered:
         st.write("Time's up!")
         check_answer(None)  # Handle unanswered case
@@ -149,10 +150,7 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]  # Clear session state
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()  # Trigger a re-render for older versions
+        st.experimental_rerun()  # Trigger a re-render to start fresh
 
 def set_background_color(color):
     """Sets the background color of the app dynamically"""
