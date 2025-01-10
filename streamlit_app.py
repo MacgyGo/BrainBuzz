@@ -14,7 +14,7 @@ def get_random_light_color():
 def initialize_quiz():
   """Initializes the quiz with questions and sets state variables"""
   #if 'quiz_data' not in st.session_state:  # Check if quiz data is already loaded
-      st.session_state.quiz_data = get_questions()
+  st.session_state.quiz_data = get_questions()
   question_bank = [Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer']) for q in st.session_state.quiz_data]
   st.session_state.quiz = QuizBrain(question_bank)  # Initialize quiz object here
   st.session_state.quiz.set_question_number(st.session_state.question_count)
