@@ -32,13 +32,12 @@ def initialize_quiz():
     st.session_state.answered = False
     st.session_state.background_color = get_random_light_color()
     st.session_state.current_index = 0
-    st.session_state.start_time = time.time()
 
 def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
-    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz', 'time_left', 'start_time']:
+    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz', 'time_left']:
         if key not in st.session_state:
             st.session_state[key] = None if key in ['quiz_data', 'quiz'] else False
 
@@ -70,38 +69,53 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
-        st.session_state.start_time = time.time()
         st.session_state.time_left = 30
 
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()
+        st.experimental_rerun()
 
 def display_question():
     set_background_color(st.session_state.background_color)
 
-    elapsed_time = int(time.time() - st.session_state.start_time)
-    st.session_state.time_left = max(0, 30 - elapsed_time)
+    st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
+    st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
+    st.write(st.session_state.current_question.text)
 
-    if st.session_state.time_left > 0 and not st.session_state.answered:
-        st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
-        st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
-        st.write(st.session_state.current_question.text)
+    # Create a placeholder for the timer
+    timer_placeholder = st.empty()
 
-        for i, choice in enumerate(st.session_state.current_question.choices):
-            if st.button(choice, key=f"choice_{i}"):
-                check_answer(choice)
+    # JavaScript to update the timer
+    st.markdown(
+        """
+        <script>
+            var timer = 30;
+            var timerElement = document.getElementById('timer');
+            var interval = setInterval(function() {
+                timer--;
+                if (timer >= 0) {
+                    timerElement.textContent = timer;
+                } else {
+                    clearInterval(interval);
+                    timerElement.textContent = "Time's up!";
+                    // Use Streamlit's postMessage to notify Python
+                    window.parent.postMessage({type: "streamlit:timeUp"}, "*");
+                }
+            }, 1000);
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
 
-        st.write(f"Time left: {st.session_state.time_left} seconds")
-        st.experimental_rerun()
-    elif not st.session_state.answered:
-        st.write("Time's up!")
+    # Display the timer
+    timer_placeholder.markdown('<p>Time left: <span id="timer">30</span> seconds</p>', unsafe_allow_html=True)
+
+    for i, choice in enumerate(st.session_state.current_question.choices):
+        if st.button(choice, key=f"choice_{i}"):
+            check_answer(choice)
+
+    # Check for time's up message
+    if st.session_state.get('time_up', False):
         check_answer(None)
-
-    if st.session_state.answered:
-        if st.button("Next Question"):
-            next_question()
+        st.session_state.time_up = False
 
 def check_answer(user_answer):
     st.session_state.answered = True
@@ -116,6 +130,9 @@ def check_answer(user_answer):
         st.error("Time's up!")
         st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
 
+    if st.button("Next Question"):
+        next_question()
+
 def next_question():
     if st.session_state.quiz.has_questions():
         st.session_state.current_question = st.session_state.quiz.next_question()
@@ -123,7 +140,7 @@ def next_question():
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
         st.session_state.current_index += 1
-        st.session_state.start_time = time.time()
+        st.experimental_rerun()
     else:
         st.session_state.quiz_completed = True
 
@@ -135,10 +152,7 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()
+        st.experimental_rerun()
 
 def set_background_color(color):
     st.markdown(
@@ -154,3 +168,10 @@ def set_background_color(color):
 
 if __name__ == "__main__":
     main()
+
+    # Handle JavaScript messages
+    if st.session_state.quiz_started:
+        message = st.experimental_get_query_params().get("streamlitMessage")
+        if message and message[0] == "timeUp":
+            st.session_state.time_up = True
+            st.experimental_rerun()
