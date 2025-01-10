@@ -71,7 +71,7 @@ def choose_question_count():
         st.session_state.current_index = 0
         st.session_state.time_left = 30
 
-        st.experimental_rerun()
+        
 
 def display_question():
     set_background_color(st.session_state.background_color)
