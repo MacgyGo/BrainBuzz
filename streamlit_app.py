@@ -1,7 +1,5 @@
 import streamlit as st
 import random
-import asyncio
-from datetime import datetime
 from quiz_data import get_questions
 from question_model import Question
 from quiz_brain import QuizBrain
@@ -129,84 +127,7 @@ def check_answer(user_answer):
     else:
         st.error("Time's up!")
         st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
-#--------------------------------------------------------------------------
 
-# Set the page layout to wide for better visualization
-st.set_page_config(layout="wide")
-
-# Adding custom CSS styles for displaying the time with a specific design
-st.markdown(
-    """
-    <style>
-    .time {
-        font-size: 60px !important;  /* Large font size for time display */
-        font-weight: 300 !important;  /* Light font weight */
-        color: #ec5953 !important;  /* Red color for the time */
-    }
-    </style>
-    """,
-    unsafe_allow_html=True  # Allowing raw HTML for styling
-)
-
-# Define an asynchronous function to display and update the current time
-async def watch(test):
-    while True:  # Infinite loop to keep the time updating
-        test.markdown(
-            f"""
-            <p class="time">
-                {str(datetime.now())}  <!-- Displaying current date and time -->
-            </p>
-            """, unsafe_allow_html=True  # Allowing raw HTML for styling
-        )
-        r = await asyncio.sleep(1)  # Wait for 1 second before updating the time
-
-# Create an empty placeholder in Streamlit for dynamically updating content
-test = st.empty()
-
-# Display an image when the button is clicked
-if st.button("Click me."):
-    st.image(
-        "https://cdn11.bigcommerce.com/s-7va6f0fjxr/images/stencil/1280x1280/products/40655/56894/Jdm-Decals-Like-A-Boss-Meme-Jdm-Decal-Sticker-Vinyl-Decal-Sticker__31547.1506197439.jpg?c=2",
-        width=200  # Set the image width
-    )
-
-# Placeholder for quiz section
-st.text("answer quiz here... with async")
-
-# Quiz Section
-st.title("Quiz with Countdown Timer")  # Title for the quiz section
-st.write("Answer the following questions before the timer runs out!")
-
-# Sample quiz questions
-questions = [
-    {"question": "What is the capital of France?", "type": "text", "answer": ""},  # Text input question
-    {"question": "What is 5 + 7?", "type": "number", "answer": ""},  # Number input question
-    {"question": "Select a programming language:", "type": "select", "options": ["Python", "Java", "C++"], "answer": ""}  # Dropdown question
-]
-
-# Loop through questions to display them in the app
-for i, q in enumerate(questions):
-    if q["type"] == "text":
-        # Display a text input for text-based questions
-        answer = st.text_input(q["question"], key=f"q{i}")
-    elif q["type"] == "number":
-        # Display a number input for numerical questions
-        answer = st.number_input(q["question"], key=f"q{i}", step=1)
-    elif q["type"] == "select":
-        # Display a dropdown (select box) for multiple-choice questions
-        answer = st.selectbox(q["question"], q["options"], key=f"q{i}")
-    questions[i]["answer"] = answer  # Save the user's answer
-
-# Submit button for the quiz
-if st.button("Submit"):
-    st.write("Quiz submitted! Here are your answers:")  # Confirmation message
-    for i, q in enumerate(questions):
-        # Display each question with the user's answer
-        st.write(f"Q{i+1}: {q['question']} - Your Answer: {q['answer']}")
-
-# Run the asynchronous function to update the time
-asyncio.run(watch(test))
-#--------------------------------------------------------------------------
 def next_question():
     """Loads the next question or marks the quiz as completed"""
     if st.session_state.quiz.has_questions():
