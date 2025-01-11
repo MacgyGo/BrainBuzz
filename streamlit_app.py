@@ -95,17 +95,14 @@ def display_question():
                 check_answer(choice)
 
     # Countdown timer
-        timer_placeholder = st.empty()
-
     for remaining in range(30, 0, -1):
         if st.session_state.answered:
             break
-    # Use HTML with inline CSS to make the text red
         timer_placeholder.markdown(f"<p style='color: red;'>Time left: {remaining} seconds</p>", unsafe_allow_html=True)
         time.sleep(1)
 
     if not st.session_state.answered:
-        timer_placeholder.text("Time's up!")
+        timer_placeholder.markdown("<p style='color: red;'>Time's up!</p>", unsafe_allow_html=True)
         check_answer(None)
 
     # Provide option to proceed to the next question
