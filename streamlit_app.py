@@ -126,7 +126,7 @@ def next_question():
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
         st.session_state.current_index += 1
-        st.experimental_rerun()
+        
     else:
         st.session_state.quiz_completed = True
 
