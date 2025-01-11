@@ -84,16 +84,15 @@ def display_question():
     st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
     st.write(st.session_state.current_question.text)
 
-    # Create empty elements for timer, choices, and feedback
+    # Create empty elements for timer and choices
     timer_placeholder = st.empty()
     choices_placeholder = st.empty()
-    feedback_placeholder = st.empty()
 
     # Display answer choices as buttons
     with choices_placeholder.container():
         for i, choice in enumerate(st.session_state.current_question.choices):
             if st.button(choice, key=f"choice_{i}"):
-                check_answer(choice, feedback_placeholder)
+                check_answer(choice)
 
     # Countdown timer
     for remaining in range(30, 0, -1):
@@ -104,26 +103,26 @@ def display_question():
 
     if not st.session_state.answered:
         timer_placeholder.text("Time's up!")
-        check_answer(None, feedback_placeholder)
+        check_answer(None)
 
     # Provide option to proceed to the next question
     if st.session_state.answered:
         if st.button("Next Question"):
             next_question()
 
-def check_answer(user_answer, feedback_placeholder):
+def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
     st.session_state.answered = True
     if user_answer:
         is_correct = st.session_state.quiz.check_answer(user_answer)
         if is_correct:
-            feedback_placeholder.success("Correct!")
+            st.success("Correct!")
         else:
-            feedback_placeholder.error("Wrong!")
-            feedback_placeholder.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
+            st.error("Wrong!")
+            st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
     else:
-        feedback_placeholder.error("Time's up!")
-        feedback_placeholder.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
+        st.error("Time's up!")
+        st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
 
 def next_question():
     """Loads the next question or marks the quiz as completed"""
@@ -132,7 +131,10 @@ def next_question():
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
         st.session_state.current_index += 1
-        st.experimental_rerun()
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.empty()
     else:
         st.session_state.quiz_completed = True
 
@@ -145,7 +147,10 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        st.experimental_rerun()
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.empty()
 
 def set_background_color(color):
     """Sets the background color of the app dynamically"""
