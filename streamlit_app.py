@@ -71,7 +71,7 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
-        st.experimental_rerun()
+        
 
 def display_question():
     """Displays the current question and its answer choices"""
@@ -133,7 +133,7 @@ def next_question():
         st.session_state.current_index += 1
         st.session_state.show_feedback = False
         st.session_state.feedback_message = ""
-        st.experimental_rerun()
+        
     else:
         st.session_state.quiz_completed = True
 
@@ -146,7 +146,7 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        st.experimental_rerun()
+        
 
 def set_background_color(color):
     """Sets the background color of the app dynamically"""
