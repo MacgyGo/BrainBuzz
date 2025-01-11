@@ -28,7 +28,6 @@ def initialize_quiz():
     st.session_state.quiz = QuizBrain(question_bank)
     st.session_state.quiz.set_question_number(st.session_state.question_count)
     st.session_state.current_question = st.session_state.quiz.next_question()
-    st.session_state.time_left = 30
     st.session_state.answered = False
     st.session_state.background_color = get_random_light_color()
     st.session_state.current_index = 0
@@ -70,11 +69,7 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
-
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()
+        st.experimental_rerun()
 
 def display_question():
     """Displays the current question and its answer choices"""
@@ -131,10 +126,7 @@ def next_question():
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
         st.session_state.current_index += 1
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()
+        st.experimental_rerun()
     else:
         st.session_state.quiz_completed = True
 
@@ -147,10 +139,7 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()
+        st.experimental_rerun()
 
 def set_background_color(color):
     """Sets the background color of the app dynamically"""
