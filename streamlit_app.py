@@ -28,17 +28,16 @@ def initialize_quiz():
     st.session_state.quiz = QuizBrain(question_bank)
     st.session_state.quiz.set_question_number(st.session_state.question_count)
     st.session_state.current_question = st.session_state.quiz.next_question()
+    st.session_state.time_left = 30
     st.session_state.answered = False
     st.session_state.background_color = get_random_light_color()
     st.session_state.current_index = 0
-    st.session_state.show_feedback = False
-    st.session_state.feedback_message = ""
 
 def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
-    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz', 'show_feedback', 'feedback_message']:
+    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz']:
         if key not in st.session_state:
             st.session_state[key] = None if key in ['quiz_data', 'quiz'] else False
 
@@ -71,7 +70,11 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
-        
+
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.empty()
 
 def display_question():
     """Displays the current question and its answer choices"""
@@ -102,10 +105,6 @@ def display_question():
         timer_placeholder.text("Time's up!")
         check_answer(None)
 
-    # Display feedback if applicable
-    if st.session_state.show_feedback:
-        st.write(st.session_state.feedback_message)
-
     # Provide option to proceed to the next question
     if st.session_state.answered:
         if st.button("Next Question"):
@@ -114,15 +113,16 @@ def display_question():
 def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
     st.session_state.answered = True
-    st.session_state.show_feedback = True
     if user_answer:
         is_correct = st.session_state.quiz.check_answer(user_answer)
         if is_correct:
-            st.session_state.feedback_message = "Correct!"
+            st.success("Correct!")
         else:
-            st.session_state.feedback_message = f"Wrong! The correct answer was: {st.session_state.quiz.get_correct_answer()}"
+            st.error("Wrong!")
+            st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
     else:
-        st.session_state.feedback_message = f"Time's up! The correct answer was: {st.session_state.quiz.get_correct_answer()}"
+        st.error("Time's up!")
+        st.write(f"The correct answer was: {st.session_state.quiz.get_correct_answer()}")
 
 def next_question():
     """Loads the next question or marks the quiz as completed"""
@@ -131,9 +131,10 @@ def next_question():
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
         st.session_state.current_index += 1
-        st.session_state.show_feedback = False
-        st.session_state.feedback_message = ""
-        
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.empty()
     else:
         st.session_state.quiz_completed = True
 
@@ -146,7 +147,10 @@ def display_results():
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
-        
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.empty()
 
 def set_background_color(color):
     """Sets the background color of the app dynamically"""
@@ -154,7 +158,7 @@ def set_background_color(color):
         f"""
         <style>
         .stApp {{
-            background_color: {color};
+            background-color: {color};
         }}
         </style>
         """,
