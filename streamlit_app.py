@@ -69,7 +69,7 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
-        st.experimental_rerun()
+        
 
 def display_question():
     """Displays the current question and its answer choices"""
