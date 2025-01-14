@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 import time
-from quiz_data import get_questions
+from quiz_data import get_questions  # Assuming you have a quiz_data.py file
 from question_model import Question
 from quiz_brain import QuizBrain
 
@@ -22,11 +22,10 @@ def initialize_quiz():
 
     question_bank = [
         Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer'])
-        for q in st.session_state.quiz_data
+        for q in st.session_state.quiz_data[:st.session_state.question_count]
     ]
 
-    st.session_state.quiz = QuizBrain(question_bank)
-    st.session_state.quiz.set_question_number(st.session_state.question_count)
+    st.session_state.quiz = QuizBrain(question_bank, st.session_state.question_count) 
     st.session_state.current_question = st.session_state.quiz.next_question()
     st.session_state.time_left = 30
     st.session_state.answered = False
@@ -37,9 +36,11 @@ def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
-    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz']:
+    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz', 'choices_disabled']:
         if key not in st.session_state:
             st.session_state[key] = None if key in ['quiz_data', 'quiz'] else False
+            if key == 'choices_disabled':
+                st.session_state[key] = False
 
     if not st.session_state.quiz_started:
         choose_question_count()
@@ -70,6 +71,7 @@ def choose_question_count():
         st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
+        st.session_state.choices_disabled = False
 
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
@@ -91,7 +93,7 @@ def display_question():
     # Display answer choices as buttons
     with choices_placeholder.container():
         for i, choice in enumerate(st.session_state.current_question.choices):
-            if st.button(choice, key=f"choice_{i}"):
+            if st.button(choice, key=f"choice_{i}", disabled=st.session_state.choices_disabled):
                 check_answer(choice)
 
     # Countdown timer
@@ -113,6 +115,7 @@ def display_question():
 def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
     st.session_state.answered = True
+    st.session_state.choices_disabled = True  # Disable all buttons after an answer
     if user_answer:
         is_correct = st.session_state.quiz.check_answer(user_answer)
         if is_correct:
@@ -131,6 +134,7 @@ def next_question():
         st.session_state.current_question = st.session_state.quiz.next_question()
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
+        st.session_state.choices_disabled = False  # Enable buttons for the next question
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
         else:
@@ -167,3 +171,6 @@ def set_background_color(color):
 
 if __name__ == "__main__":
     main()
+
+# quiz_brain.py 
+# (Your existing QuizBrain class remains the same)
