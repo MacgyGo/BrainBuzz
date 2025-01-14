@@ -107,8 +107,16 @@ def display_question():
 
     # Provide option to proceed to the next question
     if st.session_state.answered:
-        if st.button("Next Question"):
-            next_question()
+        if st.session_state.current_index + 1 < st.session_state.question_count:
+            if st.button("Next Question"):
+                next_question()
+        else:
+            if st.button("See Results"):
+                st.session_state.current_index += 1
+                if hasattr(st, 'experimental_rerun'):
+                    st.experimental_rerun()
+                else:
+                    st.empty()
 
 def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
@@ -127,16 +135,13 @@ def check_answer(user_answer):
 def next_question():
     """Loads the next question or marks the quiz as completed"""
     st.session_state.current_index += 1
-    if st.session_state.current_index < st.session_state.question_count:
-        st.session_state.current_question = st.session_state.quiz.next_question()
-        st.session_state.answered = False
-        st.session_state.background_color = get_random_light_color()
-        if hasattr(st, 'experimental_rerun'):
-            st.experimental_rerun()
-        else:
-            st.empty()
+    st.session_state.current_question = st.session_state.quiz.next_question()
+    st.session_state.answered = False
+    st.session_state.background_color = get_random_light_color()
+    if hasattr(st, 'experimental_rerun'):
+        st.experimental_rerun()
     else:
-        st.session_state.quiz_completed = True
+        st.empty()
 
 def display_results():
     """Displays the final results of the quiz"""
