@@ -67,7 +67,7 @@ def choose_question_count():
     )
 
     if st.button("Start Quiz"):
-        st.session_state.question_count = question_count
+        st.session_state.question_count = question_count + 1  # Add 1 to the question count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
 
@@ -80,8 +80,8 @@ def display_question():
     """Displays the current question and its answer choices"""
     set_background_color(st.session_state.background_color)
 
-    st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
-    st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
+    st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count - 1}")  # Subtract 1 for display
+    st.progress((st.session_state.current_index + 1) / (st.session_state.question_count - 1))  # Subtract 1 for progress
     st.write(st.session_state.current_question.text)
 
     # Create empty elements for timer and choices
@@ -107,16 +107,8 @@ def display_question():
 
     # Provide option to proceed to the next question
     if st.session_state.answered:
-        if st.session_state.current_index + 1 < st.session_state.question_count:
-            if st.button("Next Question"):
-                next_question()
-        else:
-            if st.button("See Results"):
-                st.session_state.current_index += 1
-                if hasattr(st, 'experimental_rerun'):
-                    st.experimental_rerun()
-                else:
-                    st.empty()
+        if st.button("Next Question"):
+            next_question()
 
 def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
@@ -134,20 +126,23 @@ def check_answer(user_answer):
 
 def next_question():
     """Loads the next question or marks the quiz as completed"""
-    st.session_state.current_index += 1
-    st.session_state.current_question = st.session_state.quiz.next_question()
-    st.session_state.answered = False
-    st.session_state.background_color = get_random_light_color()
-    if hasattr(st, 'experimental_rerun'):
-        st.experimental_rerun()
+    if st.session_state.quiz.has_questions():
+        st.session_state.current_question = st.session_state.quiz.next_question()
+        st.session_state.answered = False
+        st.session_state.background_color = get_random_light_color()
+        st.session_state.current_index += 1
+        if hasattr(st, 'experimental_rerun'):
+            st.experimental_rerun()
+        else:
+            st.empty()
     else:
-        st.empty()
+        st.session_state.quiz_completed = True
 
 def display_results():
     """Displays the final results of the quiz"""
     set_background_color("#FFFFFF")
     st.write("You've completed the quiz!")
-    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.question_count}")
+    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.question_count - 1}")  # Subtract 1 for display
 
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
