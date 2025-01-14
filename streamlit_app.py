@@ -1,7 +1,7 @@
 import streamlit as st
 import random
 import time
-from quiz_data import get_questions  # Assuming you have a quiz_data.py file
+from quiz_data import get_questions
 from question_model import Question
 from quiz_brain import QuizBrain
 
@@ -22,10 +22,11 @@ def initialize_quiz():
 
     question_bank = [
         Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer'])
-        for q in st.session_state.quiz_data[:st.session_state.question_count]
+        for q in st.session_state.quiz_data
     ]
 
-    st.session_state.quiz = QuizBrain(question_bank, st.session_state.question_count) 
+    st.session_state.quiz = QuizBrain(question_bank)
+    st.session_state.quiz.set_question_number(st.session_state.question_count)
     st.session_state.current_question = st.session_state.quiz.next_question()
     st.session_state.time_left = 30
     st.session_state.answered = False
@@ -46,7 +47,7 @@ def main():
         if st.session_state.quiz is None:
             initialize_quiz()
 
-        if st.session_state.quiz and st.session_state.quiz.still_has_questions():
+        if st.session_state.quiz and st.session_state.current_index < st.session_state.question_count:
             display_question()
         else:
             display_results()
@@ -125,11 +126,11 @@ def check_answer(user_answer):
 
 def next_question():
     """Loads the next question or marks the quiz as completed"""
-    if st.session_state.quiz.still_has_questions():
+    st.session_state.current_index += 1
+    if st.session_state.current_index < st.session_state.question_count:
         st.session_state.current_question = st.session_state.quiz.next_question()
         st.session_state.answered = False
         st.session_state.background_color = get_random_light_color()
-        st.session_state.current_index += 1
         if hasattr(st, 'experimental_rerun'):
             st.experimental_rerun()
         else:
