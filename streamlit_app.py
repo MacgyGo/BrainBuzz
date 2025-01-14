@@ -91,8 +91,7 @@ def display_question():
     # Display answer choices as buttons
     with choices_placeholder.container():
         for i, choice in enumerate(st.session_state.current_question.choices):
-            button = st.button(choice, key=f"choice_{i}", disabled=st.session_state.answered)
-            if button and not st.session_state.answered:
+            if st.button(choice, key=f"choice_{i}", disabled=st.session_state.answered):
                 check_answer(choice)
                 st.experimental_rerun()
 
