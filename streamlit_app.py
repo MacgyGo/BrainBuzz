@@ -22,8 +22,8 @@ def initialize_quiz():
 
     question_bank = [
         Question(q['question'], q['incorrect_answers'] + [q['correct_answer']], q['correct_answer'])
-        for q in st.session_state.quiz_data
-    ]
+        for q in st.session_state.quiz_data[:st.session_state.question_count]
+    ]  # Slice the question_bank to match the selected count
 
     st.session_state.quiz = QuizBrain(question_bank)
     st.session_state.quiz.set_question_number(st.session_state.question_count)
@@ -37,7 +37,7 @@ def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
-    for key in ['quiz_started', 'question_count', 'quiz_data', 'questions_answered', 'quiz']:
+    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz']:
         if key not in st.session_state:
             st.session_state[key] = None if key in ['quiz_data', 'quiz'] else False
 
@@ -46,9 +46,8 @@ def main():
     else:
         if st.session_state.quiz is None:
             initialize_quiz()
-            st.session_state.questions_answered = 0
 
-        if st.session_state.questions_answered < st.session_state.question_count:
+        if st.session_state.quiz and st.session_state.quiz.has_questions():
             display_question()
         else:
             display_results()
@@ -68,7 +67,7 @@ def choose_question_count():
     )
 
     if st.button("Start Quiz"):
-        st.session_state.question_count = question_count + 1  # Add 1 to the question count
+        st.session_state.question_count = question_count
         st.session_state.quiz_started = True
         st.session_state.current_index = 0
 
@@ -81,8 +80,8 @@ def display_question():
     """Displays the current question and its answer choices"""
     set_background_color(st.session_state.background_color)
 
-    st.write(f"Question {st.session_state.questions_answered + 1}/{st.session_state.question_count}")
-    st.progress((st.session_state.questions_answered + 1) / st.session_state.question_count)
+    st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
+    st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
     st.write(st.session_state.current_question.text)
 
     # Create empty elements for timer and choices
@@ -109,14 +108,7 @@ def display_question():
     # Provide option to proceed to the next question
     if st.session_state.answered:
         if st.button("Next Question"):
-            st.session_state.questions_answered += 1
-            if st.session_state.questions_answered < st.session_state.question_count:
-                next_question()
-            else:
-                if hasattr(st, 'experimental_rerun'):
-                    st.experimental_rerun()
-                else:
-                    st.empty()
+            next_question()
 
 def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
@@ -150,7 +142,7 @@ def display_results():
     """Displays the final results of the quiz"""
     set_background_color("#FFFFFF")
     st.write("You've completed the quiz!")
-    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.question_count - 1}")  # Subtract 1 for display
+    st.write(f"Your final score is: {st.session_state.quiz.score}/{st.session_state.question_count}")
 
     if st.button("Restart Quiz"):
         for key in list(st.session_state.keys()):
