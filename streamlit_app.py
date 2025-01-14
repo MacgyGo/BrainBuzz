@@ -37,7 +37,7 @@ def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
-    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz']:
+    for key in ['quiz_started', 'question_count', 'quiz_data', 'questions_answered', 'quiz']:
         if key not in st.session_state:
             st.session_state[key] = None if key in ['quiz_data', 'quiz'] else False
 
@@ -46,8 +46,9 @@ def main():
     else:
         if st.session_state.quiz is None:
             initialize_quiz()
+            st.session_state.questions_answered = 0
 
-        if st.session_state.quiz and st.session_state.current_index < st.session_state.question_count:
+        if st.session_state.questions_answered < st.session_state.question_count:
             display_question()
         else:
             display_results()
@@ -80,8 +81,8 @@ def display_question():
     """Displays the current question and its answer choices"""
     set_background_color(st.session_state.background_color)
 
-    st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count - 1}")  # Subtract 1 for display
-    st.progress((st.session_state.current_index + 1) / (st.session_state.question_count - 1))  # Subtract 1 for progress
+    st.write(f"Question {st.session_state.questions_answered + 1}/{st.session_state.question_count}")
+    st.progress((st.session_state.questions_answered + 1) / st.session_state.question_count)
     st.write(st.session_state.current_question.text)
 
     # Create empty elements for timer and choices
@@ -108,7 +109,14 @@ def display_question():
     # Provide option to proceed to the next question
     if st.session_state.answered:
         if st.button("Next Question"):
-            next_question()
+            st.session_state.questions_answered += 1
+            if st.session_state.questions_answered < st.session_state.question_count:
+                next_question()
+            else:
+                if hasattr(st, 'experimental_rerun'):
+                    st.experimental_rerun()
+                else:
+                    st.empty()
 
 def check_answer(user_answer):
     """Checks the user's answer and displays feedback"""
