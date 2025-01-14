@@ -37,7 +37,7 @@ def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
     st.title("Brain Buzz")
 
-    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz']:
+    for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz', 'answered']:
         if key not in st.session_state:
             st.session_state[key] = None if key in ['quiz_data', 'quiz'] else False
 
@@ -91,8 +91,10 @@ def display_question():
     # Display answer choices as buttons
     with choices_placeholder.container():
         for i, choice in enumerate(st.session_state.current_question.choices):
-            if st.button(choice, key=f"choice_{i}"):
+            button = st.button(choice, key=f"choice_{i}", disabled=st.session_state.answered)
+            if button and not st.session_state.answered:
                 check_answer(choice)
+                st.experimental_rerun()
 
     # Countdown timer
     for remaining in range(30, 0, -1):
