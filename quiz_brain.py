@@ -1,21 +1,19 @@
 import random
 
 class QuizBrain:
-    def __init__(self, question_list):
+    def __init__(self, question_list, question_count):
         self.question_list = question_list
         self.question_number = 0
         self.score = 0
         self.current_question = None
-        self.total_questions = len(question_list)
-        self.available_questions = list(range(len(question_list)))
+        self.total_questions = question_count 
+        self.available_questions = list(range(question_count))
 
-    def set_question_number(self, num):
-        self.total_questions = min(num, len(self.question_list))
-
-    def has_questions(self):
-        return self.question_number < self.total_questions and len(self.available_questions) > 0
+    def still_has_questions(self):
+        return self.question_number < self.total_questions 
 
     def next_question(self):
+        """Return the next question from the list."""
         if self.available_questions:
             question_index = random.choice(self.available_questions)
             self.available_questions.remove(question_index)
@@ -35,7 +33,8 @@ class QuizBrain:
         if user_answer.lower() == correct_answer.lower():
             self.score += 1
             return True
-        return False
+        else:
+            return False
 
     def get_correct_answer(self):
         return self.current_question.answer
