@@ -80,7 +80,7 @@ def display_question():
     """Displays the current question and its answer choices"""
     set_background_color(st.session_state.background_color)
 
-    st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
+    st.markdown(f"<p style='color: black;'>Question {st.session_state.current_index + 1}/{st.session_state.question_count}</p>", unsafe_allow_html=True)
     st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
     st.markdown(f"<p style='color: black;'>{st.session_state.current_question.text}</p>", unsafe_allow_html=True)
 
