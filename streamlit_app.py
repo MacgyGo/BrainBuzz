@@ -35,7 +35,7 @@ def initialize_quiz():
 
 def main():
     st.set_page_config(page_title="Neuroscience Quiz", page_icon="🧠")
-    st.title("Brain Buzz")
+    st.markdown("<h1 style='color: black;'>Brain Buzz</h1>", unsafe_allow_html=True)
 
     for key in ['quiz_started', 'question_count', 'quiz_data', 'current_index', 'quiz']:
         if key not in st.session_state:
@@ -82,7 +82,7 @@ def display_question():
 
     st.write(f"Question {st.session_state.current_index + 1}/{st.session_state.question_count}")
     st.progress((st.session_state.current_index + 1) / st.session_state.question_count)
-    st.write(st.session_state.current_question.text)
+    st.markdown(f"<p style='color: black;'>{st.session_state.current_question.text}</p>", unsafe_allow_html=True)
 
     # Create empty elements for timer and choices
     timer_placeholder = st.empty()
